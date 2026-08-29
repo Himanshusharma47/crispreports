@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CrispReports — White-label client reports your clients actually read</title>
+<meta name="description" content="Connect GA4, Google Ads, Meta & Search Console once. Get beautiful white-label monthly reports with a plain-English AI summary. One flat price — never per-client.">
+<meta property="og:title" content="CrispReports — Client reports your clients actually read">
+<meta property="og:description" content="White-label monthly marketing reports with a plain-English AI summary. One flat price — never per-client.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>document.documentElement.classList.add('js')</script>
+<style>
+  /* ============ tokens ============ */
+  :root{
+    --ink:#0f1215;            /* near-black */
+    --ink-soft:#3d434b;
+    --muted:#6b7280;
+    --page:#fafaf8;           /* warm white */
+    --card:#ffffff;
+    --hairline:#e7e6e1;
+    --accent:#2a78d6;         /* validated chart blue doubles as brand accent */
+    --accent-deep:#1c5cab;
+    --violet:#4a3aa7;
+    --grad:linear-gradient(120deg,#2a78d6 0%,#4a3aa7 100%);
+    --good:#006300;           /* success-delta text on light surfaces */
+    --hero-bg:#0e1116;
+    --hero-ink:#f4f5f7;
+    --hero-muted:#9aa3b0;
+    --radius:16px;
+    --shadow-lg:0 24px 64px -16px rgba(15,18,21,.22);
+    --shadow-sm:0 2px 8px rgba(15,18,21,.06);
+    --font-body:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --font-display:'Fraunces',Georgia,serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--font-body);background:var(--page);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+  img,svg{max-width:100%}
+  a{color:inherit}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+  section{padding:96px 0}
+  h1,h2{font-family:var(--font-display);font-weight:600;letter-spacing:-.01em;line-height:1.12}
+  h2{font-size:clamp(30px,4.4vw,44px)}
+  .kicker{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+  .lead{font-size:18px;color:var(--ink-soft);max-width:640px}
+  /* reveal animation only arms when JS runs (html.js) — content is never unrecoverably hidden */
+  html.js .reveal{opacity:0;transform:translateY(18px);transition:opacity .7s ease,transform .7s ease}
+  html.js .reveal.in{opacity:1;transform:none}
+  @media print{html.js .reveal{opacity:1;transform:none}}
+
+  /* ============ nav ============ */
+  nav{position:sticky;top:0;z-index:50;background:rgba(14,17,22,.82);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.07)}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .logo{display:flex;align-items:center;gap:9px;font-weight:700;font-size:17px;color:#fff;text-decoration:none}
+  .logo .mark{width:26px;height:26px;border-radius:8px;background:var(--grad);display:grid;place-items:center;color:#fff;font-size:14px}
+  .nav-links{display:flex;align-items:center;gap:28px;list-style:none}
+  .nav-links a{color:var(--hero-muted);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s}
+  .nav-links a:hover{color:#fff}
+  .btn{display:inline-block;border:0;cursor:pointer;text-decoration:none;font-family:var(--font-body);font-weight:600;font-size:15px;padding:13px 26px;border-radius:12px;transition:transform .15s ease,box-shadow .15s ease}
+  .btn-primary{background:var(--grad);color:#fff;box-shadow:0 8px 24px -8px rgba(42,120,214,.55)}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 14px 32px -8px rgba(42,120,214,.6)}
+  .btn-nav{padding:9px 18px;font-size:14px}
+
+  /* ============ hero ============ */
+  .hero{background:var(--hero-bg);color:var(--hero-ink);padding:110px 0 130px;position:relative;overflow:hidden}
+  .hero::before{content:"";position:absolute;inset:0;background:
+      radial-gradient(700px 420px at 78% 12%,rgba(74,58,167,.28),transparent 65%),
+      radial-gradient(640px 420px at 12% 90%,rgba(42,120,214,.20),transparent 65%);pointer-events:none}
+  .hero-grid{position:relative;display:grid;grid-template-columns:1.02fr .98fr;gap:64px;align-items:center}
+  .hero h1{font-size:clamp(38px,5.4vw,60px);color:#fff}
+  .hero h1 em{font-style:italic;background:linear-gradient(120deg,#7db4f0,#a89bf5);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero .sub{margin:24px 0 32px;font-size:18px;color:var(--hero-muted);max-width:520px}
+  .hero .sub strong{color:var(--hero-ink)}
+  .micro{margin-top:14px;font-size:13px;color:var(--hero-muted)}
+  .built-for{margin-top:44px;font-size:13px;color:var(--hero-muted);display:flex;align-items:center;gap:10px}
+  .built-for::before{content:"";width:28px;height:1px;background:rgba(255,255,255,.25)}
+
+  /* ============ report mock ============ */
+  .mock-wrap{position:relative}
+  .mock{background:var(--card);color:var(--ink);border-radius:var(--radius);box-shadow:var(--shadow-lg);padding:26px 26px 22px;transform:rotate(.6deg)}
+  .mock-head{display:flex;justify-content:space-between;align-items:center;padding-bottom:14px;border-bottom:1px solid var(--hairline)}
+  .client{display:flex;align-items:center;gap:10px}
+  .client .dot{width:32px;height:32px;border-radius:10px;background:#10b981;color:#fff;display:grid;place-items:center;font-weight:700;font-size:15px}
+  .client b{font-size:14px}
+  .client span{display:block;font-size:11px;color:var(--muted)}
+  .agency-tag{font-size:11px;font-weight:600;color:var(--muted);text-align:right}
+  .agency-tag b{display:block;color:var(--ink);font-size:12px}
+  .summary{margin:16px 0;padding:14px 16px;background:#f4f7fc;border-left:3px solid var(--accent);border-radius:0 10px 10px 0}
+  .summary h4{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+  .summary p{font-size:13px;line-height:1.55;color:var(--ink-soft)}
+  .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+  .tile{border:1px solid var(--hairline);border-radius:12px;padding:12px 12px 10px;background:var(--card)}
+  .tile .lbl{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+  .tile .val{font-size:22px;font-weight:600;margin:2px 0 1px}
+  .tile .delta{font-size:12px;font-weight:600;color:var(--good)}
+  .chart-title{font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px}
+  .mock-foot{margin-top:14px;padding-top:12px;border-top:1px solid var(--hairline);font-size:10.5px;color:var(--muted);display:flex;justify-content:space-between}
+  .mock-caption{position:absolute;left:50%;transform:translateX(-50%);bottom:-44px;white-space:nowrap;font-size:13px;color:var(--hero-muted)}
+  .mock-caption b{color:var(--hero-ink)}
+
+  /* ============ pain ============ */
+  .pain-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px}
+  .pain-card{background:var(--card);border:1px solid var(--hairline);border-radius:var(--radius);padding:32px 28px;box-shadow:var(--shadow-sm)}
+  .pain-card .n{font-family:var(--font-display);font-size:15px;color:var(--accent);font-weight:600;margin-bottom:14px}
+  .pain-card h3{font-size:19px;margin-bottom:10px;letter-spacing:-.01em}
+  .pain-card p{font-size:15px;color:var(--ink-soft)}
+  .thesis{margin-top:72px;text-align:center}
+  .thesis p{font-family:var(--font-display);font-size:clamp(24px,3.4vw,34px);font-weight:500;line-height:1.3;max-width:760px;margin:0 auto}
+  .thesis em{font-style:italic;color:var(--accent)}
+
+  /* ============ steps ============ */
+  .steps{background:var(--hero-bg);color:var(--hero-ink)}
+  .steps .lead{color:var(--hero-muted)}
+  .steps h2{color:#fff}
+  .step-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:56px;counter-reset:step}
+  .step{border:1px solid rgba(255,255,255,.09);border-radius:var(--radius);padding:32px 28px;background:rgba(255,255,255,.03)}
+  .step::before{counter-increment:step;content:"0" counter(step);font-family:var(--font-display);font-size:15px;color:#7db4f0;display:block;margin-bottom:16px}
+  .step h3{font-size:19px;color:#fff;margin-bottom:10px}
+  .step p{font-size:15px;color:var(--hero-muted)}
+
+  /* ============ humans ============ */
+  .humans-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+  .quote-card{background:var(--card);border:1px solid var(--hairline);border-left:4px solid var(--accent);border-radius:var(--radius);box-shadow:var(--shadow-lg);padding:34px 36px;font-size:17px;line-height:1.75;color:var(--ink-soft)}
+  .quote-card .tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-deep);background:#eaf1fb;border-radius:999px;padding:5px 12px;margin-bottom:18px}
+
+  /* ============ white label ============ */
+  .wl{background:#f2f1ed}
+  .wl-inner{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+  .wl ul{list-style:none;margin-top:24px}
+  .wl li{padding:10px 0 10px 34px;position:relative;font-size:16px;color:var(--ink-soft)}
+  .wl li::before{content:"✓";position:absolute;left:0;top:8px;width:22px;height:22px;border-radius:7px;background:var(--grad);color:#fff;font-size:12px;display:grid;place-items:center}
+
+  /* ============ pricing ============ */
+  .price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:56px;align-items:stretch}
+  .price-card{background:var(--card);border:1px solid var(--hairline);border-radius:20px;padding:36px 30px;display:flex;flex-direction:column;box-shadow:var(--shadow-sm);position:relative}
+  .price-card.pop{border:2px solid transparent;background:linear-gradient(var(--card),var(--card)) padding-box,var(--grad) border-box;box-shadow:var(--shadow-lg)}
+  .pop-badge{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--grad);color:#fff;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:5px 14px;border-radius:999px}
+  .price-card h3{font-size:17px;font-weight:600}
+  .price{font-family:var(--font-display);font-size:46px;font-weight:600;margin:14px 0 2px}
+  .price small{font-family:var(--font-body);font-size:15px;color:var(--muted);font-weight:500}
+  .clients{font-size:14px;color:var(--muted);margin-bottom:22px}
+  .price-card ul{list-style:none;margin-bottom:28px;flex:1}
+  .price-card li{font-size:14.5px;color:var(--ink-soft);padding:7px 0 7px 26px;position:relative}
+  .price-card li::before{content:"✓";position:absolute;left:0;color:var(--accent);font-weight:700}
+  .price-note{text-align:center;margin-top:32px;font-size:14px;color:var(--muted)}
+  .price-note b{color:var(--ink)}
+
+  /* ============ faq ============ */
+  .faq{max-width:760px;margin:56px auto 0}
+  details{border-bottom:1px solid var(--hairline)}
+  summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:22px 4px;font-weight:600;font-size:16.5px}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"+";font-family:var(--font-display);font-size:24px;color:var(--accent);transition:transform .25s}
+  details[open] summary::after{transform:rotate(45deg)}
+  details p{padding:0 4px 22px;color:var(--ink-soft);font-size:15.5px;max-width:640px}
+
+  /* ============ waitlist ============ */
+  .cta-final{background:var(--hero-bg);color:var(--hero-ink);text-align:center}
+  .cta-final h2{color:#fff}
+  .cta-final .lead{margin:20px auto 44px;color:var(--hero-muted)}
+  .form-card{max-width:520px;margin:0 auto;background:var(--card);color:var(--ink);border-radius:20px;box-shadow:var(--shadow-lg);padding:36px 34px;text-align:left}
+  .form-card label{display:block;font-size:13px;font-weight:600;margin:18px 0 6px}
+  .form-card label:first-of-type{margin-top:0}
+  .form-card input,.form-card select,.form-card textarea{width:100%;font-family:var(--font-body);font-size:15px;padding:12px 14px;border:1.5px solid var(--hairline);border-radius:10px;background:#fcfcfb;color:var(--ink);transition:border-color .2s;outline:none}
+  .form-card input:focus,.form-card select:focus,.form-card textarea:focus{border-color:var(--accent)}
+  .form-card button{width:100%;margin-top:26px}
+  .form-msg{margin-top:16px;font-size:14px;text-align:center;display:none}
+  .form-msg.ok{display:block;color:var(--good)}
+  .form-msg.err{display:block;color:#c62828}
+
+  /* ============ footer ============ */
+  footer{background:var(--hero-bg);border-top:1px solid rgba(255,255,255,.07);padding:36px 0;color:var(--hero-muted);font-size:13.5px}
+  .foot-inner{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+  footer a{color:var(--hero-muted);text-decoration:none;margin-left:22px}
+  footer a:hover{color:#fff}
+
+  /* ============ responsive ============ */
+  @media(max-width:920px){
+    .hero-grid,.humans-grid,.wl-inner{grid-template-columns:1fr;gap:56px}
+    .pain-grid,.step-grid,.price-grid{grid-template-columns:1fr;max-width:480px;margin-left:auto;margin-right:auto}
+    .price-grid{margin-top:56px}
+    .nav-links li:not(.nav-cta){display:none}
+    section{padding:72px 0}
+    .hero{padding:72px 0 110px}
+    .mock{transform:none}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap nav-inner">
+    <a class="logo" href="#top"><span class="mark">✦</span>CrispReports</a>
+    <ul class="nav-links">
+      <li><a href="#how">How it works</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li class="nav-cta"><a class="btn btn-primary btn-nav" href="#waitlist">Join waitlist</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero" id="top">
+  <div class="wrap hero-grid">
+    <div>
+      <h1>Client reports your clients <em>actually read.</em></h1>
+      <p class="sub">Connect a client's GA4, Google Ads, Meta and Search Console once. Every month, CrispReports sends them a beautiful report under <strong>your</strong> brand — with a plain-English summary of what happened, why, and what's next. <strong>One flat price. Never per-client.</strong></p>
+      <a class="btn btn-primary" href="#waitlist">Join the waitlist</a>
+      <p class="micro">Founding members get 50% off for life. No spam — one email when we launch.</p>
+      <p class="built-for">Built for 1–10 person agencies and freelance marketers</p>
+    </div>
+
+    <div class="mock-wrap">
+      <div class="mock" aria-label="Example of a CrispReports white-label monthly report">
+        <div class="mock-head">
+          <div class="client">
+            <span class="dot">B</span>
+            <div><b>Beacon &amp; Co.</b><span>Monthly Marketing Report · August 2026</span></div>
+          </div>
+          <div class="agency-tag">Prepared by<b>Northstar Digital</b></div>
+        </div>
+
+        <div class="summary">
+          <h4>✦ Executive summary</h4>
+          <p>Traffic grew 18% this month, driven mostly by the new blog posts ranking on Google. Meta spend rose slightly, but each sale cost 12% less than in July. Next month we're shifting more budget into the search campaigns that convert best.</p>
+        </div>
+
+        <div class="tiles">
+          <div class="tile"><div class="lbl">Sessions</div><div class="val">24.3k</div><div class="delta">↑ 18%</div></div>
+          <div class="tile"><div class="lbl">Conversions</div><div class="val">412</div><div class="delta">↑ 9%</div></div>
+          <div class="tile"><div class="lbl">Cost / conv.</div><div class="val">$14.20</div><div class="delta">↓ 12%</div></div>
+        </div>
+
+        <div class="chart-title">Sessions · last 30 days</div>
+        <svg id="mockChart" viewBox="0 0 520 150" role="img" aria-label="Line chart of daily sessions rising over the last 30 days"></svg>
+
+        <div class="mock-foot"><span>Page 1 of 6</span><span>northstar.digital</span></div>
+      </div>
+      <p class="mock-caption"><b>Your logo. Your client.</b> Written by CrispReports.</p>
+    </div>
+  </div>
+</header>
+
+<!-- ============ PAIN ============ -->
+<section>
+  <div class="wrap">
+    <span class="kicker reveal">The monthly report scramble</span>
+    <h2 class="reveal">It's the last week of the month.<br>You know what's coming.</h2>
+    <div class="pain-grid">
+      <div class="pain-card reveal">
+        <div class="n">01</div>
+        <h3>A full day, gone.</h3>
+        <p>Screenshots from four dashboards, pasted into slides, for every single client. Again.</p>
+      </div>
+      <div class="pain-card reveal">
+        <div class="n">02</div>
+        <h3>The per-client tax.</h3>
+        <p>Reporting tools charge ~$20 per client per month. Grow your agency, grow their invoice. Your reporting bill scales with your success — that's backwards.</p>
+      </div>
+      <div class="pain-card reveal">
+        <div class="n">03</div>
+        <h3>Silence on the other end.</h3>
+        <p>You send the PDF. Nothing. Clients don't read charts — and a report nobody reads does nothing for your renewal.</p>
+      </div>
+    </div>
+    <div class="thesis reveal">
+      <p>Reporting should <em>prove</em> your value — not consume your month.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOW ============ -->
+<section class="steps" id="how">
+  <div class="wrap">
+    <span class="kicker reveal">How it works</span>
+    <h2 class="reveal">Three steps. Then it runs itself.</h2>
+    <div class="step-grid">
+      <div class="step reveal">
+        <h3>Connect once.</h3>
+        <p>Your client grants access to GA4, Google Ads, Meta or Search Console in two clicks. You never touch a CSV again.</p>
+      </div>
+      <div class="step reveal">
+        <h3>We write the story.</h3>
+        <p>Every month, CrispReports builds the report and writes an executive summary in plain English — what happened, why it happened, what you're doing next. Edit it or send as-is.</p>
+      </div>
+      <div class="step reveal">
+        <h3>Your brand hits their inbox.</h3>
+        <p>Your logo, your colors, your domain. On schedule, every month, without you thinking about it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WRITTEN FOR HUMANS ============ -->
+<section>
+  <div class="wrap humans-grid">
+    <div>
+      <span class="kicker reveal">Written for humans</span>
+      <h2 class="reveal">The first report your client won't need you to translate.</h2>
+      <p class="lead reveal" style="margin-top:20px">Charts show <em>what</em>. Clients pay you to know <em>so what</em>. CrispReports opens every report with the paragraph you'd write yourself if you had the time. No dashboards to decode. No jargon. It reads like you wrote it — because it's built from your client's actual numbers, in language their CEO understands.</p>
+    </div>
+    <div class="quote-card reveal">
+      <span class="tag">From a CrispReports summary</span>
+      <p>"Traffic grew 18% this month, driven mostly by the new blog posts ranking on Google. We spent slightly more on Meta ads, but each sale cost 12% less than last month. Next month we're shifting more budget to the search campaigns that are converting best."</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WHITE LABEL ============ -->
+<section class="wl">
+  <div class="wrap wl-inner">
+    <div>
+      <span class="kicker reveal">White label</span>
+      <h2 class="reveal">Your brand. Not ours.</h2>
+      <p class="lead reveal" style="margin-top:20px">Your clients never see the name CrispReports — they just see an agency that has it together.</p>
+    </div>
+    <ul class="reveal">
+      <li>Your logo on every page</li>
+      <li>Your brand colors, automatically applied</li>
+      <li>Reports sent from your domain</li>
+      <li>Delivered on your schedule, every month</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ PRICING ============ -->
+<section id="pricing">
+  <div class="wrap">
+    <span class="kicker reveal">Pricing</span>
+    <h2 class="reveal">One flat price. However many clients.</h2>
+    <p class="lead reveal" style="margin-top:20px">Incumbent tools charge per client — agencies call it the growth tax. We don't do that.</p>
+    <div class="price-grid">
+      <div class="price-card reveal">
+        <h3>Starter</h3>
+        <div class="price">$29<small>/mo</small></div>
+        <div class="clients">Up to 10 client accounts</div>
+        <ul>
+          <li>All four connectors</li>
+          <li>AI executive summaries</li>
+          <li>White-label reports</li>
+          <li>Scheduled email delivery</li>
+        </ul>
+        <a class="btn btn-primary" href="#waitlist">Join waitlist</a>
+      </div>
+      <div class="price-card pop reveal">
+        <span class="pop-badge">Most popular</span>
+        <h3>Studio</h3>
+        <div class="price">$59<small>/mo</small></div>
+        <div class="clients">Up to 30 client accounts</div>
+        <ul>
+          <li>Everything in Starter</li>
+          <li>Priority report generation</li>
+          <li>Editable summaries &amp; sections</li>
+          <li>Priority support</li>
+        </ul>
+        <a class="btn btn-primary" href="#waitlist">Join waitlist</a>
+      </div>
+      <div class="price-card reveal">
+        <h3>Agency</h3>
+        <div class="price">$99<small>/mo</small></div>
+        <div class="clients">Unlimited client accounts</div>
+        <ul>
+          <li>Everything in Studio</li>
+          <li>Custom report domain</li>
+          <li>Team seats</li>
+          <li>Onboarding help</li>
+        </ul>
+        <a class="btn btn-primary" href="#waitlist">Join waitlist</a>
+      </div>
+    </div>
+    <p class="price-note reveal">14-day free trial · No card to start · <b>Founding waitlist members lock in 50% off for life</b></p>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section id="faq" style="padding-top:0">
+  <div class="wrap">
+    <span class="kicker reveal">FAQ</span>
+    <h2 class="reveal">Fair questions.</h2>
+    <div class="faq reveal">
+      <details>
+        <summary>Which platforms do you support?</summary>
+        <p>GA4, Google Ads, Meta Ads and Search Console at launch. We'd rather run four connectors flawlessly than forty flakily — more come when these are bulletproof.</p>
+      </details>
+      <details>
+        <summary>Is my clients' data safe?</summary>
+        <p>Read-only access, granted by the account owner through Google and Meta's own consent screens, revocable anytime. We never sell or share data. See our <a href="privacy.html">privacy policy</a>.</p>
+      </details>
+      <details>
+        <summary>Isn't Looker Studio free?</summary>
+        <p>Yes — and every agency using it pays in hours instead: templates that break with every GA4 change, and no narrative your client can actually follow. Free tools cost your weekends.</p>
+      </details>
+      <details>
+        <summary>Can I edit the AI summary?</summary>
+        <p>Always. It's a draft that's 95% done, not a bot speaking on your behalf.</p>
+      </details>
+      <details>
+        <summary>When does it launch?</summary>
+        <p>The waitlist is open now; founding members onboard first, within weeks. That's also why founding pricing exists — early users shape the product.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WAITLIST ============ -->
+<section class="cta-final" id="waitlist">
+  <div class="wrap">
+    <h2 class="reveal">Next month's reports could send themselves.</h2>
+    <p class="lead reveal">If month-end reporting eats a day you'd rather spend on client work, joining the waitlist is the right decision.</p>
+    <div class="form-card reveal">
+      <form id="waitlistForm" novalidate>
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="you@youragency.com" required>
+
+        <label for="role">What describes you best?</label>
+        <select id="role" name="role">
+          <option>Agency owner</option>
+          <option>Freelancer / consultant</option>
+          <option>In-house marketer</option>
+          <option>Just curious</option>
+        </select>
+
+        <label for="clients">How many clients do you report for?</label>
+        <select id="clients" name="clients">
+          <option>1–5</option>
+          <option>6–15</option>
+          <option>16–30</option>
+          <option>30+</option>
+        </select>
+
+        <label for="current">What do you use today? <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+        <input type="text" id="current" name="current_tool" placeholder="AgencyAnalytics, Looker Studio, slides by hand…">
+
+        <button class="btn btn-primary" type="submit">Join the waitlist — 50% off for life</button>
+        <p class="form-msg" id="formMsg"></p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-inner">
+    <span>© 2026 CrispReports</span>
+    <span>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="terms.html">Terms of Service</a>
+      <a href="mailto:hello@crispreports.com">Contact</a>
+    </span>
+  </div>
+</footer>
+
+<script>
+/* ==========================================================================
+   SETUP — one thing to change before deploying:
+   Create a free form endpoint (formspree.io → new form → copy its URL, e.g.
+   https://formspree.io/f/abcdwxyz) and paste it below.
+   Alternative: build the same 4 fields at tally.so and point the CTA buttons
+   at the Tally link instead of this inline form.
+   ========================================================================== */
+const FORM_ACTION = "REPLACE_WITH_FORMSPREE_URL";
+
+/* ---- waitlist form ---- */
+const form = document.getElementById('waitlistForm');
+const msg  = document.getElementById('formMsg');
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = form.email.value.trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    msg.className = 'form-msg err'; msg.textContent = 'Please enter a valid email.'; return;
+  }
+  if (FORM_ACTION.includes('REPLACE')) {
+    msg.className = 'form-msg err'; msg.textContent = 'Form backend not configured yet — set FORM_ACTION in index.html.'; return;
+  }
+  try {
+    const res = await fetch(FORM_ACTION, {
+      method: 'POST',
+      headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify(Object.fromEntries(new FormData(form)))
+    });
+    if (!res.ok) throw new Error();
+    form.reset();
+    msg.className = 'form-msg ok'; msg.textContent = "You're on the list. Watch your inbox — founding pricing is real.";
+  } catch {
+    msg.className = 'form-msg err'; msg.textContent = 'Something went wrong — please try again.';
+  }
+});
+
+/* ---- scroll reveals (with fallback: if IO is unavailable, show everything) ---- */
+if ('IntersectionObserver' in window) {
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
+  }, { threshold: 0.14 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+} else {
+  document.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+}
+
+/* ---- hero mock chart: single series, 2px line, thin marks, recessive grid ---- */
+(function drawChart(){
+  const svg = document.getElementById('mockChart');
+  const W = 520, H = 150, padL = 34, padR = 46, padT = 12, padB = 22;
+  const data = [620,640,610,660,700,680,720,760,730,790,810,780,840,880,850,910,940,900,960,1010,980,1040,1080,1050,1110,1160,1130,1190,1240,1275];
+  const min = 500, max = 1300;
+  const x = i => padL + i * (W - padL - padR) / (data.length - 1);
+  const y = v => padT + (H - padT - padB) * (1 - (v - min) / (max - min));
+  const ns = 'http://www.w3.org/2000/svg';
+  const el = (t, a) => { const n = document.createElementNS(ns, t); for (const k in a) n.setAttribute(k, a[k]); return n; };
+
+  // recessive hairline grid + muted tick labels
+  [600, 900, 1200].forEach(v => {
+    svg.appendChild(el('line', { x1: padL, x2: W - padR, y1: y(v), y2: y(v), stroke: '#e1e0d9', 'stroke-width': 1 }));
+    const t = el('text', { x: padL - 6, y: y(v) + 3.5, 'text-anchor': 'end', fill: '#898781', 'font-size': 10, 'font-family': 'Inter,system-ui,sans-serif' });
+    t.textContent = (v / 1000).toFixed(1) + 'k'; svg.appendChild(t);
+  });
+
+  // area fill (12% tint) + 2px line
+  const pts = data.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+  svg.appendChild(el('polygon', { points: `${padL},${y(min)} ${pts} ${x(data.length-1).toFixed(1)},${y(min)}`, fill: 'rgba(42,120,214,0.12)' }));
+  svg.appendChild(el('polyline', { points: pts, fill: 'none', stroke: '#2a78d6', 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }));
+
+  // end marker with 2px surface ring + selective direct label (last point only)
+  const lx = x(data.length - 1), ly = y(data[data.length - 1]);
+  svg.appendChild(el('circle', { cx: lx, cy: ly, r: 4.5, fill: '#2a78d6', stroke: '#ffffff', 'stroke-width': 2 }));
+  const lbl = el('text', { x: lx + 8, y: ly + 3.5, fill: '#0b0b0b', 'font-size': 11, 'font-weight': 600, 'font-family': 'Inter,system-ui,sans-serif' });
+  lbl.textContent = '1,275'; svg.appendChild(lbl);
+})();
+</script>
+</body>
+</html>
